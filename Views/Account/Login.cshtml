@@ -1,0 +1,30 @@
+﻿@model ResxWeb.Models.ViewModels.Account.LoginViewModel
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <table id="loginTable">
+        <tr>
+            <td>@Html.LabelFor(model => model.UserName)</td>
+            <td>@Html.EditorFor(model => model.UserName)</td>
+            <td>@Html.ValidationMessageFor(model => model.UserName)</td>
+        </tr>
+        <tr>
+            <td>@Html.LabelFor(model => model.Password)</td>
+            <td>@Html.EditorFor(model => model.Password)</td>
+            <td>@Html.ValidationMessageFor(model => model.Password)</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="submit" value="Log in" /></td>
+            <td></td>
+        </tr>
+    </table>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

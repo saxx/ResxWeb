@@ -1,0 +1,99 @@
+﻿@using ResxWeb
+@model ResxWeb.Models.ViewModels.Home.EditViewModel
+
+@helper RenderTextArea(ResxKey resource, string culture)
+{
+    <text>
+    @{
+        var value = resource.Values.ContainsKey(culture) ? resource.Values[culture].Value : "";
+        var isDefaultValue = !resource.Values.ContainsKey(culture) || !resource.Values[culture].HasChangedInDelta || string.IsNullOrEmpty(resource.Values[culture].Value);
+        var canEdit = (Model.Resources.Any(x => x.RelativeFilePath == resource.RelativeFilePath && x.Values.ContainsKey(culture))) && (Model.CurrentUser.EditableCultures == null || !Model.CurrentUser.EditableCultures.Any() || Model.CurrentUser.EditableCultures.Contains(culture));
+        var isLarge = resource.Values.Any(x => x.Value.Value.Length > 75 || x.Value.Value.Contains("\n"));     
+    }
+    @if (canEdit)
+    {
+        <textarea class="translationTextBox@(isDefaultValue ? "" : " notDefaultValue")@(isLarge ? " large" : "")" name="@(resource.RelativeFilePath + "|" + resource.Key + "|" + culture)">@value</textarea>
+    }
+    else
+    {
+        <div class="translationText@(isDefaultValue ? "" : " notDefaultValue")@(isLarge ? " large" : "")">@value</div>
+    }
+    </text>
+}
+
+@{ var lineCount = 0; }
+@using (Html.BeginForm())
+{
+    <text>
+    <table>
+        <tr>
+            <th></th>
+            @if (Model.CurrentUser.DisplayFile)
+            {
+                <th>File</th>
+            }
+            @if (Model.CurrentUser.DisplayKey)
+            {
+                <th>Key</th>
+            }
+            @foreach (var culture in Model.AvailableCultures)
+            {
+                <th>@(culture == "" ? "Default culture" : culture)</th>
+            }
+        </tr>
+        @foreach (var resource in Model.Resources.OrderBy(x => x.RelativeFilePath).ThenBy(x => x.Key))
+        {
+            <text>
+            <tr class="translationRow">
+                <td><span class="fileOrKey">@(++lineCount)&nbsp;&nbsp;</span></td>
+                @if (Model.CurrentUser.DisplayFile)
+                {
+                    <td><span class="fileOrKey">@resource.RelativeFilePath</span></td>
+                }
+                @if (Model.CurrentUser.DisplayKey)
+                {
+                    <td><span class="fileOrKey">@resource.Key</span></td>
+                }
+                @foreach (var culture in Model.AvailableCultures)
+                {
+                    <td>@RenderTextArea(resource, culture)</td>
+                }
+            </tr>
+            </text>
+        }
+    </table>
+    </text>
+}
+
+<div>
+    @Html.ActionLink("Download merged RESX files", "Download", "Home", new { id = Model.CurrentSection }, null)
+</div>
+
+@section navigation
+{
+    <input type="button" value="Save" onclick="$('form').submit();" />
+    <input type="checkbox" id="displayChangedOnly" /><label for="displayChangedOnly">Display changed only</label>
+}
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var checkbox = $("#displayChangedOnly");
+            checkbox.click(function () {
+                if (checkbox.prop("checked")) {
+                    $(".translationRow").each(function (i, row) {
+                        row = $(row);
+                        if (row.find(".notDefaultValue").length <= 0)
+                            row.hide();
+                    });
+                } else
+                    $(".translationRow").show();
+            });
+
+            $(".translationTextBox").change(function () {
+                $(this).addClass("notDefaultValue");
+            });
+        });
+    </script>
+}

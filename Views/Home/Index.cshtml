@@ -1,0 +1,13 @@
+﻿@model ResxWeb.Models.ViewModels.Home.IndexViewModel
+
+<table id="sectionsTable">
+    <tr>
+        <th>Select a section</th>
+    </tr>
+    @foreach (var item in Model.AvailableSources)
+    {
+        <tr>
+            <td>@Html.ActionLink(item, "Edit", new { id = item })</td>
+        </tr>
+    }
+</table>
