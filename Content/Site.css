@@ -15,11 +15,13 @@ table { border-spacing: 0; margin-left: auto; margin-right: auto; }
 #sectionsTable { margin-left: auto; margin-right: auto; }
     #sectionsTable tr:nth-child(even) { background-color: transparent; }
 
-textarea.translationTextBox, div.translationText { width: 400px; height: 1.3em; font-size: 0.85em; font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif; overflow: auto; }
-    textarea.translationTextBox.large, div.translationText.large { height: 7em; }
+.translationRow td { padding: 3px; }
+
+textarea.translationTextBox, div.translationText { width: 400px; font-size: 0.85em; font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif; vertical-align: bottom; }
     textarea.translationTextBox.notDefaultValue, div.translationText.notDefaultValue { background-color: lightgoldenrodyellow; }
 div.translationText { white-space: pre-wrap; }
-span.fileOrKey { font-family: monospace;font-size: 0.9em; }
+textarea.translationTextBox { height: 1.3em; }
+span.fileOrKey { font-family: monospace; font-size: 0.9em; }
 
 .field-validation-error { color: #f00; }
 .field-validation-valid { display: none; }

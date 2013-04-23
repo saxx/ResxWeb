@@ -7,16 +7,15 @@
     @{
         var value = resource.Values.ContainsKey(culture) ? resource.Values[culture].Value : "";
         var isDefaultValue = !resource.Values.ContainsKey(culture) || !resource.Values[culture].HasChangedInDelta || string.IsNullOrEmpty(resource.Values[culture].Value);
-        var canEdit = (Model.Resources.Any(x => x.RelativeFilePath == resource.RelativeFilePath && x.Values.ContainsKey(culture))) && (Model.CurrentUser.EditableCultures == null || !Model.CurrentUser.EditableCultures.Any() || Model.CurrentUser.EditableCultures.Contains(culture));
-        var isLarge = resource.Values.Any(x => x.Value.Value.Length > 75 || x.Value.Value.Contains("\n"));     
+        var canEdit = (Model.Resources.Any(x => x.RelativeFilePath == resource.RelativeFilePath && x.Values.ContainsKey(culture))) && (Model.CurrentUser.EditableCultures == null || !Model.CurrentUser.EditableCultures.Any() || Model.CurrentUser.EditableCultures.Contains(culture)); 
     }
     @if (canEdit)
     {
-        <textarea class="translationTextBox@(isDefaultValue ? "" : " notDefaultValue")@(isLarge ? " large" : "")" name="@(resource.RelativeFilePath + "|" + resource.Key + "|" + culture)">@value</textarea>
+        <textarea class="translationTextBox@(isDefaultValue ? "" : " notDefaultValue")" name="@(resource.RelativeFilePath + "|" + resource.Key + "|" + culture)">@value</textarea>
     }
     else
     {
-        <div class="translationText@(isDefaultValue ? "" : " notDefaultValue")@(isLarge ? " large" : "")">@value</div>
+        <div class="translationText@(isDefaultValue ? "" : " notDefaultValue")">@value</div>
     }
     </text>
 }
@@ -72,28 +71,89 @@
 @section navigation
 {
     <input type="button" value="Save" onclick="$('form').submit();" />
-    <input type="checkbox" id="displayChangedOnly" /><label for="displayChangedOnly">Display changed only</label>
+    <input type="radio" id="displayAll" name="displayGroup" checked="checked" /><label for="displayAll">Display all</label>
+    <input type="radio" id="displayChanged" name="displayGroup" /><label for="displayChanged">Display changed only</label>
+    <input type="radio" id="displayEmpty" name="displayGroup" /><label for="displayEmpty">Display empty only</label>
+    <span id="count" style="padding-left: 20px;"></span>
 }
 
 @section scripts
 {
     <script>
-        $(document).ready(function () {
-            var checkbox = $("#displayChangedOnly");
-            checkbox.click(function () {
-                if (checkbox.prop("checked")) {
-                    $(".translationRow").each(function (i, row) {
+        $(document).ready(function() {
+
+            function updateCount() {
+                var total = $(".translationRow").length;
+                var visible = $(".translationRow:visible").length;
+                $("#count").html(visible + "/" + total);
+            }
+
+            function unifyTextAreaHeight(row) {
+                var maxHeight = 0;
+                $.each(row.find("textarea"), function(i, val) {
+
+                    val.style.height = "auto";
+                    var scrollHeight = val.scrollHeight;
+                    val.style.height = scrollHeight + "px";
+
+                    if (scrollHeight && scrollHeight > maxHeight) {
+                        maxHeight = val.scrollHeight;
+                    }
+                });
+
+                row.find("textarea").css("height", maxHeight + "px");
+            }
+
+            function updateTextAreaHeight(textarea) {
+                $(textarea).get(0).style.height = "auto";
+                $(textarea).get(0).style.height = $(textarea).get(0).scrollHeight + "px";
+            }
+
+            $("input[name=displayGroup]").change(function() {
+                if ($("#displayAll").prop("checked")) {
+                    $(".translationRow").show();
+                } else if ($("#displayChanged").prop("checked")) {
+                    $(".translationRow").each(function(i, row) {
                         row = $(row);
                         if (row.find(".notDefaultValue").length <= 0)
                             row.hide();
+                        else
+                            row.show();
                     });
-                } else
-                    $(".translationRow").show();
+                } else if ($("#displayEmpty").prop("checked")) {
+                    $(".translationRow").each(function(i, row) {
+                        row = $(row);
+                        if (row.find("textarea").filter(function() { return $(this).val() == ""; }).length > 0)
+                            row.show();
+                        else
+                            row.hide();
+                    });
+                }
+                updateCount();
             });
 
-            $(".translationTextBox").change(function () {
+            $(".translationTextBox").change(function() {
                 $(this).addClass("notDefaultValue");
             });
+
+            $("textarea").keydown(function() {
+                updateTextAreaHeight(this);
+            });
+
+            $("textarea").click(function() {
+                updateTextAreaHeight(this);
+            });
+
+            $("textarea").blur(function() {
+                updateTextAreaHeight(this);
+            });
+
+            $("textarea").change(function() {
+                var row = $(this).closest(".translationRow");
+                unifyTextAreaHeight(row);
+            });
+
+            updateCount();
         });
     </script>
 }
