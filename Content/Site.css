@@ -17,10 +17,10 @@ table { border-spacing: 0; margin-left: auto; margin-right: auto; }
 
 .translationRow td { padding: 3px; }
 
-textarea.translationTextBox, div.translationText { width: 400px; font-size: 0.85em; font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif; vertical-align: bottom; }
+textarea.translationTextBox, div.translationText { width: 400px; font-size: 0.85em; font-family: "Segoe UI", Verdana, Helvetica, Sans-Serif; vertical-align: bottom;overflow: auto;max-height: 200px;border: 0; }
     textarea.translationTextBox.notDefaultValue, div.translationText.notDefaultValue { background-color: lightgoldenrodyellow; }
 div.translationText { white-space: pre-wrap; }
-textarea.translationTextBox { height: 1.3em; }
+textarea.translationTextBox { height: 1.3em;border: 1px solid gray; }
 span.fileOrKey { font-family: monospace; font-size: 0.9em; }
 
 .field-validation-error { color: #f00; }
